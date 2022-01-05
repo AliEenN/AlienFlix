@@ -28,7 +28,25 @@ namespace AlienFlix.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Movies.Select(e => new MovieViewModel { Id = e.Id, Genres = _context.GenresMovies.Where(m => m.MovieId == e.Id).Include(e => e.Genre).Select(g => new CheckBoxViewModel { Name = g.Genre.Name }).ToList(), Poster = e.Poster, Rate = e.Rate, Storyline = e.Storyline, Title = e.Title, Year = e.Year }).OrderBy(e => e.Rate).ToListAsync());
+            return View(
+                await _context.Movies
+                    .Where(e => e.IsDeleted == false)
+                    .Select(e => new MovieViewModel {
+                        Id = e.Id,
+                        Poster = e.Poster,
+                        Rate = e.Rate,
+                        Storyline = e.Storyline,
+                        Title = e.Title,
+                        Year = e.Year,
+                        Genres = _context.GenresMovies
+                            .Where(m => m.MovieId == e.Id)
+                            .Include(e => e.Genre)
+                            .Select(g => new CheckBoxViewModel
+                            { Name = g.Genre.Name }).ToList()
+                    })
+                    .OrderBy(e => e.Rate)
+                    .ToListAsync()
+            );
         }
 
         // GET
@@ -81,6 +99,7 @@ namespace AlienFlix.Areas.Admin.Controllers
                 Title = model.Title,
                 Year = model.Year,
                 Rate = model.Rate,
+                IsDeleted = false,
                 Storyline = model.Storyline,
                 Poster = dataStream.ToArray()
             });
@@ -114,7 +133,7 @@ namespace AlienFlix.Areas.Admin.Controllers
 
             var movieExist = await _context.Movies.FindAsync(id);
 
-            if (movieExist == null)
+            if (movieExist == null || movieExist.IsDeleted)
                 return NotFound();
 
             return View(new MovieViewModel
@@ -138,7 +157,7 @@ namespace AlienFlix.Areas.Admin.Controllers
 
             var movieExist = await _context.Movies.FindAsync(id);
 
-            if (movieExist == null)
+            if (movieExist == null || movieExist.IsDeleted)
                 return NotFound();
 
             var genresList = await _context.Genres.ToListAsync();
@@ -168,6 +187,12 @@ namespace AlienFlix.Areas.Admin.Controllers
 
             if (movieExist != null)
             {
+                if (movieExist.IsDeleted)
+                {
+                    ModelState.AddModelError("Title", "This movie is already exist but in trash!");
+                    return View("CategoryForm", model);
+                }
+
                 ModelState.AddModelError("Title", "This movie is already exist!");
                 return View("CategoryForm", model);
             }
@@ -235,7 +260,74 @@ namespace AlienFlix.Areas.Admin.Controllers
 
             var movieExist = await _context.Movies.FindAsync(id);
 
-            if (movieExist == null)
+            if (movieExist == null || movieExist.IsDeleted)
+                return NotFound();
+
+            movieExist.IsDeleted = true;
+
+            _context.Movies.Update(movieExist);
+            await _context.SaveChangesAsync();
+
+            _toastNotification.AddSuccessToastMessage("Movie Deleted Successfly.");
+
+            return Ok();
+        }
+
+        // GET
+        [HttpGet]
+        public async Task<IActionResult> Trash()
+        {
+            return View(
+                await _context.Movies
+                    .Where(e => e.IsDeleted == true)
+                    .Select(e => new MovieViewModel
+                    {
+                        Id = e.Id,
+                        Poster = e.Poster,
+                        Rate = e.Rate,
+                        Storyline = e.Storyline,
+                        Title = e.Title,
+                        Year = e.Year,
+                        Genres = _context.GenresMovies
+                            .Where(m => m.MovieId == e.Id)
+                            .Include(e => e.Genre)
+                            .Select(g => new CheckBoxViewModel
+                            { Name = g.Genre.Name }).ToList()
+                    })
+                    .ToListAsync()
+            );
+        }
+
+        // POST
+        public async Task<IActionResult> Undo(int? id)
+        {
+            if (id == null)
+                return BadRequest();
+
+            var movieExist = await _context.Movies.FindAsync(id);
+
+            if (movieExist == null || movieExist.IsDeleted == false)
+                return NotFound();
+
+            movieExist.IsDeleted = false;
+
+            _context.Movies.Update(movieExist);
+            await _context.SaveChangesAsync();
+
+            _toastNotification.AddSuccessToastMessage("Movie Back To List Successfly.");
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST
+        public async Task<IActionResult> FinalDelete(int? id)
+        {
+            if (id == null)
+                return BadRequest();
+
+            var movieExist = await _context.Movies.FindAsync(id);
+
+            if (movieExist == null || movieExist.IsDeleted == false)
                 return NotFound();
 
             _context.Movies.Remove(movieExist);

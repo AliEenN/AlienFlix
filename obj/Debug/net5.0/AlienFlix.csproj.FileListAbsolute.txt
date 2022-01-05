@@ -487,3 +487,4 @@ C:\Users\ali\source\repos\AlienFlix\AlienFlix\obj\Debug\net5.0\AlienFlix.genrunt
 C:\Users\ali\source\repos\AlienFlix\AlienFlix\obj\Debug\net5.0\Razor\Areas\Admin\Views\Genres\Details.cshtml.g.cs
 C:\Users\ali\source\repos\AlienFlix\AlienFlix\obj\Debug\net5.0\Razor\Areas\Admin\Views\Users\Index.cshtml.g.cs
 C:\Users\ali\source\repos\AlienFlix\AlienFlix\obj\Debug\net5.0\AlienFlix.csproj.AssemblyReference.cache
+C:\Users\ali\source\repos\AlienFlix\AlienFlix\obj\Debug\net5.0\Razor\Areas\Admin\Views\Movies\Trash.cshtml.g.cs
