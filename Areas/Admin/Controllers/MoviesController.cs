@@ -1,6 +1,8 @@
-﻿using AlienFlix.Data;
+﻿using AlienFlix.Constants;
+using AlienFlix.Data;
 using AlienFlix.Models;
 using AlienFlix.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NToastNotify;
@@ -50,6 +52,7 @@ namespace AlienFlix.Areas.Admin.Controllers
         }
 
         // GET
+        [Authorize(Roles = Roles.Admin + "," + Roles.Manager + "," + Roles.DataEntry)]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -60,6 +63,7 @@ namespace AlienFlix.Areas.Admin.Controllers
         }
 
         // POST
+        [Authorize(Roles = Roles.Admin + "," + Roles.Manager + "," + Roles.DataEntry)]
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Create(MovieViewModel model)
@@ -149,6 +153,7 @@ namespace AlienFlix.Areas.Admin.Controllers
         }
 
         // GET
+        [Authorize(Roles = Roles.Admin + "," + Roles.Manager + "," + Roles.DataEntry)]
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -174,8 +179,9 @@ namespace AlienFlix.Areas.Admin.Controllers
                 Genres = genresList.Select(e => new CheckBoxViewModel { Id = e.Id, Name = e.Name, IsSelected = genresIds.Contains(e.Id) }).ToList()
             });
         }
-        
+
         // POST
+        [Authorize(Roles = Roles.Admin + "," + Roles.Manager + "," + Roles.DataEntry)]
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Edit(MovieViewModel model)
@@ -251,8 +257,9 @@ namespace AlienFlix.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-        
+
         // POST
+        [Authorize(Roles = Roles.Admin + "," + Roles.Manager)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

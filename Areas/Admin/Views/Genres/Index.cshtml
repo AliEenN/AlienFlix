@@ -41,7 +41,7 @@
                                 Details
                             </a>
 
-                            @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Manager) || User.IsInRole(Roles.DataEntry))
+                            @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Manager))
                             {
                                 <a href="javascript:;" class="btn btn-danger js-delete text-white" data-id="@genre.Id">
                                     <i class="bi bi-trash"></i>

@@ -1,6 +1,8 @@
-﻿using AlienFlix.Data;
+﻿using AlienFlix.Constants;
+using AlienFlix.Data;
 using AlienFlix.Models;
 using AlienFlix.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NToastNotify;
@@ -31,6 +33,7 @@ namespace AlienFlix.Areas.Admin.Controllers
         }
 
         // POST
+        [Authorize(Roles = Roles.Admin + "," + Roles.Manager + "," + Roles.DataEntry)]
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Create(GenreViewModel model)
@@ -58,6 +61,7 @@ namespace AlienFlix.Areas.Admin.Controllers
         }
 
         // Get
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -76,6 +80,7 @@ namespace AlienFlix.Areas.Admin.Controllers
         }
 
         // POST
+        [Authorize(Roles = Roles.Admin + "," + Roles.Manager)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
